@@ -3,6 +3,7 @@ const crypto = require("crypto");
 
 const config = require("./config");
 const { validatePassword } = require("./utils");
+const emailValidator = require("email-validator");
 
 const EMAIL_OR_PASSWORD_INVALID = "EMAIL_OR_PASSWORD_INVALID";
 const PASSWORD_INVALID = "PASSWORD_INVALID";
@@ -12,6 +13,7 @@ const PASSWORDS_NOT_MATCH = "PASSWORDS_NOT_MATCH";
 const SERVER_ERROR = "SERVER_ERROR";
 const USER_ALREADY_REGISTERED = "USER_ALREADY_REGISTERED";
 const PASSWORD_NOT_VALIDATED = "PASSWORD_NOT_VALIDATED";
+const EMAIL_NOT_VALIDATED = "EMAIL_NOT_VALIDATED";
 const ACOUNT_NOT_ACTIVATED = "ACOUNT_NOT_ACTIVATED";
 const USER_NOT_EXISTS = "USER_NOT_EXISTS";
 
@@ -62,6 +64,8 @@ class Auth {
       const { password, username, organisation } = req.body;
 
       if (password && !validatePassword(password)) return res.status(200).send({ ok: false, user: null, code: PASSWORD_NOT_VALIDATED });
+      if (!emailValidator.validate(req.body.email)) return res.status(400).send({ ok: false, user: null, code: EMAIL_NOT_VALIDATED });
+
 
       const user = await this.model.create({ name: username, organisation, password });
       const token = jwt.sign({ _id: user._id }, config.secret, { expiresIn: JWT_MAX_AGE });

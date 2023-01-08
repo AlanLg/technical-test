@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const emailValidator = require("email-validator");
 const router = express.Router();
 
 const UserObject = require("../models/user");
@@ -12,6 +13,7 @@ const UserAuth = new AuthObject(UserObject);
 const SERVER_ERROR = "SERVER_ERROR";
 const USER_ALREADY_REGISTERED = "USER_ALREADY_REGISTERED";
 const PASSWORD_NOT_VALIDATED = "PASSWORD_NOT_VALIDATED";
+const EMAIL_NOT_VALIDATED = "EMAIL_NOT_VALIDATED";
 
 router.post("/signin", (req, res) => UserAuth.signin(req, res));
 router.post("/logout", (req, res) => UserAuth.logout(req, res));
@@ -43,13 +45,17 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 router.post("/", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     if (!validatePassword(req.body.password)) return res.status(400).send({ ok: false, user: null, code: PASSWORD_NOT_VALIDATED });
+    if (!emailValidator.validate(req.body.email)) return res.status(400).send({ ok: false, user: null, code: EMAIL_NOT_VALIDATED });
 
-    const user = await UserObject.create({ ...req.body, organisation: req.user.organisation });
+    const { password, username, email, status, availability, role } = req.body;
+
+    // req.user.organisation + "-" + username <-- this needs to be changed once the database has been restarted
+    const user = await UserObject.create({ name: username, organisation: req.user.organisation + "-" + username, password, email, status, availability, role });
 
     return res.status(200).send({ data: user, ok: true });
   } catch (error) {
-    if (error.code === 11000) return res.status(409).send({ ok: false, code: USER_ALREADY_REGISTERED });
     console.log(error);
+    if (error.code === 11000) return res.status(409).send({ ok: false, code: USER_ALREADY_REGISTERED });
     return res.status(500).send({ ok: false, code: SERVER_ERROR });
   }
 });
