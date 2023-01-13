@@ -18,7 +18,7 @@ export default function EditProject() {
     (async () => {
       const { data: u } = await api.get(`/project/${id}`);
       console.log("this projrct: " + JSON.stringify(u));
-      setProject(u[0]);
+      setProject(u);
     })();
   }, []);
 

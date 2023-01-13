@@ -25,7 +25,7 @@ export default function ProjectView() {
     (async () => {
       const { data: u } = await api.get(`/project/${id}`);
       console.log("project data: " + JSON.stringify(u));
-      setProject(u[0]);
+      setProject(u);
     })();
   }, []);
 

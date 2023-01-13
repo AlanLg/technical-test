@@ -19,7 +19,7 @@ router.post("/signin", (req, res) => UserAuth.signin(req, res));
 router.post("/logout", (req, res) => UserAuth.logout(req, res));
 router.post("/signup", (req, res) => UserAuth.signup(req, res));
 
-router.get("/signin_token", passport.authenticate("user", { session: false }), (req, res) => UserAuth.signinToken(req, res));
+router.get("/signin_token", passport. authenticate("user", { session: false }), (req, res) => UserAuth.signinToken(req, res));
 
 router.get("/available", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
